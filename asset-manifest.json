@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/num-calculator/static/css/main.41bd123e.css",
+    "main.js": "/num-calculator/static/js/main.2ca39592.js",
+    "static/js/787.9a6f6beb.chunk.js": "/num-calculator/static/js/787.9a6f6beb.chunk.js",
+    "index.html": "/num-calculator/index.html",
+    "main.41bd123e.css.map": "/num-calculator/static/css/main.41bd123e.css.map",
+    "main.2ca39592.js.map": "/num-calculator/static/js/main.2ca39592.js.map",
+    "787.9a6f6beb.chunk.js.map": "/num-calculator/static/js/787.9a6f6beb.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.41bd123e.css",
+    "static/js/main.2ca39592.js"
+  ]
+}
