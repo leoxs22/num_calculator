@@ -1,0 +1,24 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "contributors": [
+    {
+      "login": "evele",
+      "name": "evele",
+      "avatar_url": "https://avatars.githubusercontent.com/u/11834499?v=4",
+      "profile": "https://github.com/evele",
+      "contributions": [
+        "code"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "projectName": "num_calculator",
+  "projectOwner": "leoxs22",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "skipCi": true
+}
