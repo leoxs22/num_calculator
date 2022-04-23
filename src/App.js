@@ -13,11 +13,11 @@ import {
 import {useEffect, useState} from "react"
 import CardHeader from "react-bootstrap/CardHeader"
 import {blocksPerYear, colateralRatio, interests} from "./constants"
-import NumberFormat from "react-number-format"
 import {FaTwitter, FaLinkedinIn, FaGithub} from "react-icons/fa"
 import {MdEdit} from "react-icons/md"
 import numLogo from "./images/numlogo.png"
 import {formatNumber} from "./NumberFormatter"
+import Spinner from "./Spinner";
 
 const axios = require("axios").default
 
@@ -52,9 +52,7 @@ function App() {
         axios
             .get("https://api.anchorprotocol.com/api/v2/deposit-rate")
             .then((res) => {
-                setCurrentAnchorAPY(
-                    parseFloat(res.data[0].deposit_rate) * blocksPerYear
-                )
+                setCurrentAnchorAPY(parseFloat(res.data[0].deposit_rate) * blocksPerYear)
                 setLastUpdated((prev) => ({...prev, anchor: new Date()}))
             })
             .catch((err) => {
@@ -101,7 +99,7 @@ function App() {
                                 <Row>
                                     <Col>Precio dólar</Col>
                                     <Col className="col-auto">
-                                        ${formatNumber(1 / nuArsPrice)}
+                                        {nuArsPrice? <span>$ {formatNumber(1 / nuArsPrice)}</span> : <Spinner/>}
                                     </Col>
                                 </Row>
                             </ListGroup.Item>
@@ -109,7 +107,7 @@ function App() {
                                 <Row>
                                     <Col>Anchor APY</Col>
                                     <Col className="col-auto">
-                                        <span className={"mx-2"}>{formatNumber(currentAnchorAPY * 100)}%</span>
+                                        {currentAnchorAPY? <span className={"mx-2"}>{formatNumber(currentAnchorAPY * 100)}%</span> : <Spinner/>}
                                         <MdEdit className={"text-muted"}
                                                 onClick={() => setEditAnchorAPY(prev => !prev)}/>
                                     </Col>
