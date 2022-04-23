@@ -13,19 +13,6 @@
       "contributions": [
         "code"
       ]
-    },
-    {
-      "login": "leoxs22",
-      "name": "Leandro Narosky",
-      "avatar_url": "https://avatars.githubusercontent.com/u/9098977?v=4",
-      "profile": "https://www.resortpass.com/",
-      "contributions": [
-        "code",
-        "review",
-        "projectManagement",
-        "maintenance",
-        "design"
-      ]
     }
   ],
   "contributorsPerLine": 7,
