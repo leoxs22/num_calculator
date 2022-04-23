@@ -17,21 +17,9 @@ import NumberFormat from "react-number-format"
 import {FaTwitter, FaLinkedinIn, FaGithub} from "react-icons/fa"
 import {MdEdit} from "react-icons/md"
 import numLogo from "./images/numlogo.png"
+import {formatNumber} from "./NumberFormatter"
 
 const axios = require("axios").default
-
-function formatNumber(num) {
-    return (
-        <NumberFormat
-            value={num}
-            displayType={"text"}
-            thousandSeparator={"."}
-            decimalSeparator={","}
-            decimalScale={2}
-            className={"numbers"}
-        />
-    )
-}
 
 function App() {
     const [nuArsPrice, setNuArsPrice] = useState(null)
