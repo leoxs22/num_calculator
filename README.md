@@ -1,6 +1,6 @@
 # Num finance calculator
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 This is a calculator for  [Num finance](https://num.finance/) loans.
@@ -16,7 +16,6 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <table>
   <tr>
     <td align="center"><a href="https://github.com/evele"><img src="https://avatars.githubusercontent.com/u/11834499?v=4?s=100" width="100px;" alt=""/><br /><sub><b>evele</b></sub></a><br /><a href="https://github.com/leoxs22/num_calculator/commits?author=evele" title="Code">💻</a></td>
-    <td align="center"><a href="https://www.resortpass.com/"><img src="https://avatars.githubusercontent.com/u/9098977?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Leandro Narosky</b></sub></a><br /><a href="https://github.com/leoxs22/num_calculator/commits?author=leoxs22" title="Code">💻</a> <a href="https://github.com/leoxs22/num_calculator/pulls?q=is%3Apr+reviewed-by%3Aleoxs22" title="Reviewed Pull Requests">👀</a> <a href="#projectManagement-leoxs22" title="Project Management">📆</a> <a href="#maintenance-leoxs22" title="Maintenance">🚧</a> <a href="#design-leoxs22" title="Design">🎨</a></td>
   </tr>
 </table>
 
