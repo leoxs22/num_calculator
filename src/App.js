@@ -13,7 +13,7 @@ import {
 import {useEffect, useState} from "react"
 import CardHeader from "react-bootstrap/CardHeader"
 import {blocksPerYear, colateralRatio, interests} from "./constants"
-import {FaTwitter, FaLinkedinIn, FaGithub} from "react-icons/fa"
+import {FaTwitter, FaLinkedinIn, FaGithub, FaChevronDown} from "react-icons/fa"
 import {MdEdit} from "react-icons/md"
 import numLogo from "./images/numlogo.png"
 import {formatNumber} from "./NumberFormatter"
@@ -29,6 +29,8 @@ function App() {
     const [requestedAmount, setRequestedAmount] = useState(500000)
     const [lastUpdated, setLastUpdated] = useState({anchor: null, num: null})
     const [editAnchorApy, setEditAnchorAPY] = useState(false)
+    const [predictedDolar, setPredictedDolar] = useState(null)
+    const [openSimulator, setOpenSimulator] = useState(true)
 
     const selectedInterest = interests.find((i) => i.days === selectedDays)
     const interest =
@@ -42,6 +44,7 @@ function App() {
             )
             .then((res) => {
                 setNuArsPrice(parseFloat(res.data.data.price))
+                setPredictedDolar(((1 / parseFloat(res.data.data.price)) * (1.5**(selectedInterest.days/360))).toFixed(2))
                 setLastUpdated((prev) => ({...prev, num: new Date()}))
             })
             .catch((err) => {
@@ -73,7 +76,8 @@ function App() {
         receivedDollarizedAmount * (anchorInterestInDays - 1)
     const totalDollars =
         receivedDollarizedAmount + expectedAnchorEarningsWithoutColateral
-    const dolarPriceNeededToCoverInterest = requestedAmount / totalDollars
+    const dolarPriceNeededToCoverInterest = requestedAmount / totalDollars;
+    const predictedEarnings = (totalDollars * predictedDolar) - requestedAmount;
 
     const requiredDolarIncrease = dolarPriceNeededToCoverInterest * nuArsPrice - 1
     return (
@@ -99,7 +103,7 @@ function App() {
                                 <Row>
                                     <Col>Precio dólar</Col>
                                     <Col className="col-auto">
-                                        {nuArsPrice? <span>$ {formatNumber(1 / nuArsPrice)}</span> : <Spinner/>}
+                                        {nuArsPrice ? <span>$ {formatNumber(1 / nuArsPrice)}</span> : <Spinner/>}
                                     </Col>
                                 </Row>
                             </ListGroup.Item>
@@ -107,7 +111,9 @@ function App() {
                                 <Row>
                                     <Col>Anchor APY</Col>
                                     <Col className="col-auto">
-                                        {currentAnchorAPY? <span className={"mx-2"}>{formatNumber(currentAnchorAPY * 100)}%</span> : <Spinner/>}
+                                        {currentAnchorAPY ?
+                                            <span className={"mx-2"}>{formatNumber(currentAnchorAPY * 100)}%</span> :
+                                            <Spinner/>}
                                         <MdEdit className={"text-muted"}
                                                 onClick={() => setEditAnchorAPY(prev => !prev)}/>
                                     </Col>
@@ -255,6 +261,60 @@ function App() {
                                 </Row>
                             </ListGroup.Item>
                         </ListGroup>
+                    </Card>
+                    <Card>
+                        <CardHeader>
+                            <h3 onClick={(event => setOpenSimulator((prev) => !prev))}>
+                                Simulador de ganancia
+                                <FaChevronDown className={"float-right"}/>
+                            </h3>
+                        </CardHeader>
+                        <div hidden={openSimulator}>
+                            <Row className={"m-2"}>
+                                <Col>
+                                    <InputGroup>
+                                        <InputGroup.Text id="predicted_amount">
+                                            Si el dolar se va a $
+                                        </InputGroup.Text>
+                                        <FormControl
+                                            aria-label="predicted_amount"
+                                            aria-describedby="predicted_amount"
+                                            value={predictedDolar || dolarPriceNeededToCoverInterest.toFixed(2)}
+                                            onChange={(e) => setPredictedDolar(e.target.value)}
+                                        />
+                                    </InputGroup>
+                                </Col>
+                            </Row>
+                            <div className={"m-2 mx-4"}>
+                            <Row>
+                                <Col>
+                                    Aumento anualizado
+                                </Col>
+                                <Col className={"col-auto"}>
+                                    {formatNumber(((predictedDolar*nuArsPrice) ** (365 / selectedDays) - 1) * 100)}%
+                                </Col>
+                            </Row>
+                            <Row className={"mt-2"}>
+                                <Col>
+                                    <h5>{predictedEarnings >= 0 ? "Ganamos" : "Perdemos"}
+                                        <span style={{color: predictedEarnings >= 0 ? "green" : "red"}}
+                                              className="float-right">
+                                        <Row>
+                                            <Col>
+                                                {formatNumber(Math.abs(predictedEarnings))} nuARS
+                                            </Col>
+                                        </Row>
+                                        <Row>
+                                            <Col>
+                                                {formatNumber(Math.abs(predictedEarnings / predictedDolar))} U$D
+                                            </Col>
+                                        </Row>
+                                    </span>
+                                    </h5>
+                                </Col>
+                            </Row>
+                            </div>
+                        </div>
                     </Card>
                     <Card>
                         <div className={"text-center p-1"}>
