@@ -18,6 +18,7 @@ import {MdEdit} from "react-icons/md"
 import numLogo from "./images/numlogo.png"
 import {formatNumber} from "./NumberFormatter"
 import Spinner from "./Spinner";
+import {ImCross} from "react-icons/im";
 
 const axios = require("axios").default
 
@@ -44,7 +45,7 @@ function App() {
             )
             .then((res) => {
                 setNuArsPrice(parseFloat(res.data.data.price))
-                setPredictedDolar(((1 / parseFloat(res.data.data.price)) * (1.5**(selectedInterest.days/360))).toFixed(2))
+                setPredictedDolar(((1 / parseFloat(res.data.data.price)) * (1.5 ** (selectedInterest.days / 360))).toFixed(2))
                 setLastUpdated((prev) => ({...prev, num: new Date()}))
             })
             .catch((err) => {
@@ -56,6 +57,7 @@ function App() {
             .get("https://api.anchorprotocol.com/api/v2/deposit-rate")
             .then((res) => {
                 setCurrentAnchorAPY(parseFloat(res.data[0].deposit_rate) * blocksPerYear)
+                setCustomAnchorAPY((parseFloat(res.data[0].deposit_rate) * blocksPerYear * 100).toFixed(2))
                 setLastUpdated((prev) => ({...prev, anchor: new Date()}))
             })
             .catch((err) => {
@@ -110,29 +112,35 @@ function App() {
                             <ListGroup.Item>
                                 <Row>
                                     <Col>Anchor APY</Col>
-                                    <Col className="col-auto">
-                                        {currentAnchorAPY ?
-                                            <span className={"mx-2"}>{formatNumber(currentAnchorAPY * 100)}%</span> :
-                                            <Spinner/>}
-                                        <MdEdit className={"text-muted"}
-                                                onClick={() => setEditAnchorAPY(prev => !prev)}/>
+                                    <Col className="col-auto"> {
+                                        !editAnchorApy ?
+                                            <>
+                                            {(currentAnchorAPY
+                                                ?
+                                                    (<span className={"mx-2"}>{formatNumber(currentAnchorAPY * 100)}%</span>)
+                                                :
+                                                    <Spinner/>)}
+                                            <MdEdit className={"text-muted"} style={{marginTop: "-0.2rem"}}
+                                                    onClick={() => setEditAnchorAPY(true)}/>
+                                            </>
+                                        :
+                                        <Row>
+                                            <Col className={"p-0"}>
+                                            <FormControl
+                                                className={classColor}
+                                                aria-label="requested_amount"
+                                                aria-describedby="requested_amount"
+                                                style={{width: "5rem", height: "1.6rem", textAlign: "right", fontWeight: "bold"}}
+                                                value={customAnchorAPY}
+                                                onChange={(e) => setCustomAnchorAPY(e.target.value)}
+                                            />
+                                            </Col>
+                                            <Col className={"col-auto"}>
+                                            <ImCross style={{color: "red", float: "right", marginTop: "0.3rem"}} onClick={() => setEditAnchorAPY(false)}/>
+                                            </Col>
+                                        </Row>
+                                    }
                                     </Col>
-                                </Row>
-                            </ListGroup.Item>
-                            <ListGroup.Item hidden={!editAnchorApy}>
-                                <Row>
-                                    <InputGroup>
-                                        <InputGroup.Text id="requested_amount">
-                                            Anchor APY manual %
-                                        </InputGroup.Text>
-                                        <FormControl
-                                            className={classColor}
-                                            aria-label="requested_amount"
-                                            aria-describedby="requested_amount"
-                                            value={customAnchorAPY}
-                                            onChange={(e) => setCustomAnchorAPY(e.target.value)}
-                                        />
-                                    </InputGroup>
                                 </Row>
                             </ListGroup.Item>
                             <ListGroup.Item>
@@ -286,33 +294,35 @@ function App() {
                                 </Col>
                             </Row>
                             <div className={"m-2 mx-4"}>
-                            <Row>
-                                <Col>
-                                    Aumento anualizado
-                                </Col>
-                                <Col className={"col-auto"}>
-                                    {formatNumber(((predictedDolar*nuArsPrice) ** (365 / selectedDays) - 1) * 100)}%
-                                </Col>
-                            </Row>
-                            <Row className={"mt-2"}>
-                                <Col>
-                                    <h5>{predictedEarnings >= 0 ? "Ganamos" : "Perdemos"}
-                                        <span style={{color: predictedEarnings >= 0 ? "green" : "red"}}
-                                              className="float-right">
-                                        <Row>
-                                            <Col>
-                                                {formatNumber(Math.abs(predictedEarnings))} nuARS
-                                            </Col>
-                                        </Row>
-                                        <Row>
-                                            <Col>
-                                                {formatNumber(Math.abs(predictedEarnings / predictedDolar))} U$D
-                                            </Col>
-                                        </Row>
-                                    </span>
-                                    </h5>
-                                </Col>
-                            </Row>
+                                <Row>
+                                    <Col>
+                                        Aumento dólar anualizado
+                                    </Col>
+                                    <Col className={"col-auto"}>
+                                        {formatNumber(((predictedDolar * nuArsPrice) ** (365 / selectedDays) - 1) * 100)}%
+                                    </Col>
+                                </Row>
+                                <Row className={"mt-2 font-weight-bold"}>
+                                    <Col>
+                                        {predictedEarnings >= 0 ? "Ganamos" : "Perdemos"}
+                                    </Col>
+                                    <Col>
+                                            <span style={{color: predictedEarnings >= 0 ? "green" : "red"}}>
+                                                <Row>
+                                                    <Col>
+                                                        <span
+                                                            className="float-right">{formatNumber(Math.abs(predictedEarnings))} nuARS </span>
+                                                    </Col>
+                                                </Row>
+                                                <Row>
+                                                    <Col>
+                                                        <span
+                                                            className="float-right">{formatNumber(Math.abs(predictedEarnings / predictedDolar))} U$D</span>
+                                                    </Col>
+                                                </Row>
+                                            </span>
+                                    </Col>
+                                </Row>
                             </div>
                         </div>
                     </Card>
