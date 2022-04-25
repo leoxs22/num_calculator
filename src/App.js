@@ -23,13 +23,15 @@ import {ImCross} from "react-icons/im";
 const axios = require("axios").default
 
 function App() {
-    const [nuArsPrice, setNuArsPrice] = useState(null)
+    const [nuArsPricePancake, setNuArsPricePancake] = useState(null)
     const [currentAnchorAPY, setCurrentAnchorAPY] = useState(null)
     const [customAnchorAPY, setCustomAnchorAPY] = useState(null)
     const [selectedDays, setSelectedDays] = useState(90)
     const [requestedAmount, setRequestedAmount] = useState(500000)
     const [lastUpdated, setLastUpdated] = useState({anchor: null, num: null})
     const [editAnchorApy, setEditAnchorAPY] = useState(false)
+    const [editDolarPrice, setEditDolarPrice] = useState(false)
+    const [manualDolarPrice, setManualDolarPrice] = useState(false)
     const [predictedDolar, setPredictedDolar] = useState(null)
     const [openSimulator, setOpenSimulator] = useState(true)
 
@@ -37,6 +39,7 @@ function App() {
     const interest =
         ((requestedAmount * selectedInterest.discount) / 360) * selectedDays
     const amountToReceive = requestedAmount - interest
+    const nuArsPrice = editDolarPrice ? 1/manualDolarPrice : nuArsPricePancake
 
     useEffect(() => {
         axios
@@ -44,7 +47,8 @@ function App() {
                 "https://api.pancakeswap.info/api/v2/tokens/0x91bc956F064d755dB2e4EfE839eF0131e0b07E28"
             )
             .then((res) => {
-                setNuArsPrice(parseFloat(res.data.data.price))
+                setNuArsPricePancake(parseFloat(res.data.data.price))
+                setManualDolarPrice(1 / parseFloat(res.data.data.price))
                 setPredictedDolar(((1 / parseFloat(res.data.data.price)) * (1.5 ** (selectedInterest.days / 360))).toFixed(2))
                 setLastUpdated((prev) => ({...prev, num: new Date()}))
             })
@@ -105,7 +109,40 @@ function App() {
                                 <Row>
                                     <Col>Precio dólar</Col>
                                     <Col className="col-auto">
-                                        {nuArsPrice ? <span>$ {formatNumber(1 / nuArsPrice)}</span> : <Spinner/>}
+                                        {nuArsPricePancake ? <span>$ {formatNumber(1 / nuArsPricePancake)}</span> : <Spinner/>}
+                                    </Col>
+                                </Row>
+                            </ListGroup.Item>
+                            <ListGroup.Item>
+                                <Row>
+                                    <Col>Precio dólar</Col>
+                                    <Col className="col-auto"> {
+                                        !editDolarPrice ?
+                                            <>
+                                                {(nuArsPricePancake
+                                                    ?
+                                                    (<span className={"mx-2"}> $ {formatNumber(1/nuArsPricePancake)}</span>)
+                                                    :
+                                                    <Spinner/>)}
+                                                <MdEdit className={"text-muted"} style={{marginTop: "-0.2rem"}}
+                                                        onClick={() => setEditDolarPrice(true)}/>
+                                            </>
+                                            :
+                                            <Row>
+                                                <Col className={"p-0"}>
+                                                    <FormControl
+                                                        aria-label="manual_dolar"
+                                                        aria-describedby="manual_dolar"
+                                                        style={{width: "5rem", height: "1.6rem", textAlign: "right", fontWeight: "bold"}}
+                                                        value={manualDolarPrice}
+                                                        onChange={(e) => setManualDolarPrice(e.target.value.replaceAll(',', '.') || 0)}
+                                                    />
+                                                </Col>
+                                                <Col className={"col-auto"}>
+                                                    <ImCross style={{color: "red", float: "right", marginTop: "0.3rem"}} onClick={() => setEditDolarPrice(false)}/>
+                                                </Col>
+                                            </Row>
+                                    }
                                     </Col>
                                 </Row>
                             </ListGroup.Item>
@@ -128,11 +165,11 @@ function App() {
                                             <Col className={"p-0"}>
                                             <FormControl
                                                 className={classColor}
-                                                aria-label="requested_amount"
-                                                aria-describedby="requested_amount"
+                                                aria-label="manual_anchor"
+                                                aria-describedby="manual_anchor"
                                                 style={{width: "5rem", height: "1.6rem", textAlign: "right", fontWeight: "bold"}}
                                                 value={customAnchorAPY}
-                                                onChange={(e) => setCustomAnchorAPY(e.target.value)}
+                                                onChange={(e) => setCustomAnchorAPY(e.target.value.replaceAll(',', '.') || 0)}
                                             />
                                             </Col>
                                             <Col className={"col-auto"}>
@@ -274,7 +311,7 @@ function App() {
                         <CardHeader>
                             <h3 onClick={(event => setOpenSimulator((prev) => !prev))}>
                                 Simulador de ganancia
-                                <FaChevronDown className={"float-right"}/>
+                                <FaChevronDown className={"float-right"} style={{marginTop: "0.4rem"}}/>
                             </h3>
                         </CardHeader>
                         <div hidden={openSimulator}>
