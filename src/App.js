@@ -108,14 +108,6 @@ function App() {
                             <ListGroup.Item>
                                 <Row>
                                     <Col>Precio dólar</Col>
-                                    <Col className="col-auto">
-                                        {nuArsPricePancake ? <span>$ {formatNumber(1 / nuArsPricePancake)}</span> : <Spinner/>}
-                                    </Col>
-                                </Row>
-                            </ListGroup.Item>
-                            <ListGroup.Item>
-                                <Row>
-                                    <Col>Precio dólar</Col>
                                     <Col className="col-auto"> {
                                         !editDolarPrice ?
                                             <>
@@ -324,8 +316,8 @@ function App() {
                                         <FormControl
                                             aria-label="predicted_amount"
                                             aria-describedby="predicted_amount"
-                                            value={predictedDolar || dolarPriceNeededToCoverInterest.toFixed(2)}
-                                            onChange={(e) => setPredictedDolar(e.target.value)}
+                                            value={predictedDolar}
+                                            onChange={(e) => setPredictedDolar(e.target.value.replaceAll(',', '.') || 0)}
                                         />
                                     </InputGroup>
                                 </Col>
