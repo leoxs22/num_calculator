@@ -48,7 +48,7 @@ function App() {
             )
             .then((res) => {
                 setNuArsPricePancake(parseFloat(res.data.data.price))
-                setManualDolarPrice(1 / parseFloat(res.data.data.price))
+                setManualDolarPrice((1 / parseFloat(res.data.data.price)).toFixed(2))
                 setPredictedDolar(((1 / parseFloat(res.data.data.price)) * (1.5 ** (selectedInterest.days / 360))).toFixed(2))
                 setLastUpdated((prev) => ({...prev, num: new Date()}))
             })
