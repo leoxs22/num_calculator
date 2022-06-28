@@ -252,7 +252,7 @@ function App() {
                             </ListGroup.Item>
                             <ListGroup.Item>
                                 <Row>
-                                    <Col>Precio del dólar al que se paga solo</Col>
+                                    <Col>Precio del dólar al que se paga solo*</Col>
                                     <Col className="col-auto">
                                         $ {formatNumber(dolarPriceNeededToCoverInterest)}
                                     </Col>
@@ -323,7 +323,7 @@ function App() {
                             <div className={"m-2 mx-4"}>
                                 <Row>
                                     <Col>
-                                        Aumento dólar anualizado
+                                        Aumento dólar anualizado*
                                     </Col>
                                     <Col className={"col-auto"}>
                                         {formatNumber(((predictedDolar * nuArsPrice) ** (365 / selectedDays) - 1) * 100)}%
@@ -382,6 +382,9 @@ function App() {
                     <Card className={"p-2"}>
                         <div className={"text-muted"}>
                             Puede haber errores en los cálculos, do your own research
+                        </div>
+                        <div className={"text-muted"}>
+                            *La tasa es variable durante el préstamo, los valores pueden cambiar
                         </div>
                     </Card>
                 </div>
