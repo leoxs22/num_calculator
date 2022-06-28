@@ -33,6 +33,7 @@ function App() {
     const [predictedDolar, setPredictedDolar] = useState(null)
     const [openSimulator, setOpenSimulator] = useState(true)
 
+
     const interest = requestedAmount * (tna / 100 / 365 + 1) ** selectedDays - requestedAmount;
     const tea = (tna / 100 / 365 + 1) ** 365;
     const nuArsPrice = editDolarPrice ? 1 / manualDolarPrice : nuArsPricePancake
@@ -133,7 +134,7 @@ function App() {
                                                 aria-label="manual_apy"
                                                 aria-describedby="manual_apy"
                                                 value={customBuenbitAPY}
-                                                onChange={(e) => setCustomBuenbitAPY(e.target.value.replaceAll(',', '.') || 0)}
+                                                onChange={(e) => setCustomBuenbitAPY(Number(e.target.value.replaceAll(',', '.')) || 0)}
                                             />
                                             <InputGroup.Text id="manual_apy">
                                                 %
@@ -151,7 +152,7 @@ function App() {
                                                 aria-label="manual_apy"
                                                 aria-describedby="manual_apy"
                                                 value={tna}
-                                                onChange={(e) => setTNA(e.target.value.replaceAll(',', '.') || 0)}
+                                                onChange={(e) => setTNA(Number(e.target.value.replaceAll(',', '.')) || 0)}
                                             />
                                             <InputGroup.Text id="manual_apy">
                                                 %
@@ -179,7 +180,7 @@ function App() {
                                 aria-label="requested_days"
                                 aria-describedby="requested_days"
                                 value={selectedDays}
-                                onChange={(e) => setSelectedDays(e.target.value)}
+                                onChange={(e) => setSelectedDays(Number(e.target.value) || 0)}
                             />
                         </InputGroup>
                         <InputGroup>
@@ -190,7 +191,7 @@ function App() {
                                 aria-label="requested_amount"
                                 aria-describedby="requested_amount"
                                 value={requestedAmount}
-                                onChange={(e) => setRequestedAmount(e.target.value)}
+                                onChange={(e) => setRequestedAmount(Number(e.target.value) || 0)}
                             />
                         </InputGroup>
                     </Card>
