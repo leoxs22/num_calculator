@@ -24,22 +24,18 @@ const axios = require("axios").default
 
 function App() {
     const [nuArsPricePancake, setNuArsPricePancake] = useState(null)
-    const [currentAnchorAPY, setCurrentAnchorAPY] = useState(null)
-    const [customAnchorAPY, setCustomAnchorAPY] = useState(null)
+    const [customBuenbitAPY, setCustomBuenbitAPY] = useState(7)
+    const [tna, setTNA] = useState(58);
     const [selectedDays, setSelectedDays] = useState(90)
-    const [requestedAmount, setRequestedAmount] = useState(500000)
-    const [lastUpdated, setLastUpdated] = useState({anchor: null, num: null})
-    const [editAnchorApy, setEditAnchorAPY] = useState(false)
+    const [requestedAmount, setRequestedAmount] = useState(100000)
     const [editDolarPrice, setEditDolarPrice] = useState(false)
     const [manualDolarPrice, setManualDolarPrice] = useState(false)
     const [predictedDolar, setPredictedDolar] = useState(null)
     const [openSimulator, setOpenSimulator] = useState(true)
 
-    const selectedInterest = interests.find((i) => i.days === selectedDays)
-    const interest =
-        ((requestedAmount * selectedInterest.discount) / 360) * selectedDays
-    const amountToReceive = requestedAmount - interest
-    const nuArsPrice = editDolarPrice ? 1/manualDolarPrice : nuArsPricePancake
+    const interest = requestedAmount * (tna / 100 / 365 + 1) ** selectedDays - requestedAmount;
+    const tea = (tna / 100 / 365 + 1) ** 365;
+    const nuArsPrice = editDolarPrice ? 1 / manualDolarPrice : nuArsPricePancake
 
     useEffect(() => {
         axios
@@ -49,41 +45,24 @@ function App() {
             .then((res) => {
                 setNuArsPricePancake(parseFloat(res.data.data.price))
                 setManualDolarPrice((1 / parseFloat(res.data.data.price)).toFixed(2))
-                setPredictedDolar(((1 / parseFloat(res.data.data.price)) * (1.5 ** (selectedInterest.days / 360))).toFixed(2))
-                setLastUpdated((prev) => ({...prev, num: new Date()}))
+                setPredictedDolar(((1 / parseFloat(res.data.data.price)) * 1.3).toFixed(2))
             })
             .catch((err) => {
                 console.log(err)
             })
 
-        // get APY anchor earn
-        axios
-            .get("https://api.anchorprotocol.com/api/v2/deposit-rate")
-            .then((res) => {
-                setCurrentAnchorAPY(parseFloat(res.data[0].deposit_rate) * blocksPerYear)
-                setCustomAnchorAPY((parseFloat(res.data[0].deposit_rate) * blocksPerYear * 100).toFixed(2))
-                setLastUpdated((prev) => ({...prev, anchor: new Date()}))
-            })
-            .catch((err) => {
-                console.log(err)
-            })
     }, [])
 
-    const anchorAPY = customAnchorAPY && editAnchorApy ? customAnchorAPY / 100 : currentAnchorAPY
-    const classColor =
-        customAnchorAPY / 100 < currentAnchorAPY ? "text-danger" : "text-success"
-
     const dolarizedAmount = requestedAmount * nuArsPrice
-    const receivedDollarizedAmount = amountToReceive * nuArsPrice
     const colateralNeeded = dolarizedAmount * colateralRatio
-    const anchorInterestInDays = (1 + anchorAPY) ** (selectedDays / 365)
-    const expectedAnchorEarnings = colateralNeeded * (anchorInterestInDays - 1)
-    const expectedAnchorEarningsWithoutColateral =
-        receivedDollarizedAmount * (anchorInterestInDays - 1)
+    const buenbitInterestInDays = (1 + customBuenbitAPY/100) ** (selectedDays / 365)
+    const expectedBuenbitEarnings = colateralNeeded * (buenbitInterestInDays - 1)
+    const expectedBuenbitEarningsWithoutColateral =
+        dolarizedAmount * (buenbitInterestInDays - 1)
     const totalDollars =
-        receivedDollarizedAmount + expectedAnchorEarningsWithoutColateral
-    const dolarPriceNeededToCoverInterest = requestedAmount / totalDollars;
-    const predictedEarnings = (totalDollars * predictedDolar) - requestedAmount;
+        dolarizedAmount + expectedBuenbitEarningsWithoutColateral
+    const dolarPriceNeededToCoverInterest = (requestedAmount + interest) / totalDollars;
+    const predictedEarnings = (totalDollars * predictedDolar) - (requestedAmount + interest);
 
     const requiredDolarIncrease = dolarPriceNeededToCoverInterest * nuArsPrice - 1
     return (
@@ -97,7 +76,7 @@ function App() {
                                     <img src={numLogo} className={"logo"}/>
                                 </Col>
                                 <Col className={"col-auto"}>
-                                    <h2 className={"m-0"}>Calculadora Num Finance</h2>
+                                    <h2 className={"m-0"}>Calculadora Num Buenbit</h2>
                                     <h5 className={"p-0 text-muted"}>(no oficial)</h5>
                                 </Col>
                             </Row>
@@ -113,7 +92,8 @@ function App() {
                                             <>
                                                 {(nuArsPricePancake
                                                     ?
-                                                    (<span className={"mx-2"}> $ {formatNumber(1/nuArsPricePancake)}</span>)
+                                                    (<span
+                                                        className={"mx-2"}> $ {formatNumber(1 / nuArsPricePancake)}</span>)
                                                     :
                                                     <Spinner/>)}
                                                 <MdEdit className={"text-muted"} style={{marginTop: "-0.2rem"}}
@@ -125,13 +105,19 @@ function App() {
                                                     <FormControl
                                                         aria-label="manual_dolar"
                                                         aria-describedby="manual_dolar"
-                                                        style={{width: "5rem", height: "1.6rem", textAlign: "right", fontWeight: "bold"}}
+                                                        style={{
+                                                            width: "5rem",
+                                                            height: "1.6rem",
+                                                            textAlign: "right",
+                                                            fontWeight: "bold"
+                                                        }}
                                                         value={manualDolarPrice}
                                                         onChange={(e) => setManualDolarPrice(e.target.value.replaceAll(',', '.') || 0)}
                                                     />
                                                 </Col>
                                                 <Col className={"col-auto"}>
-                                                    <ImCross style={{color: "red", float: "right", marginTop: "0.3rem"}} onClick={() => setEditDolarPrice(false)}/>
+                                                    <ImCross style={{color: "red", float: "right", marginTop: "0.3rem"}}
+                                                             onClick={() => setEditDolarPrice(false)}/>
                                                 </Col>
                                             </Row>
                                     }
@@ -140,35 +126,37 @@ function App() {
                             </ListGroup.Item>
                             <ListGroup.Item>
                                 <Row>
-                                    <Col>Anchor APY</Col>
-                                    <Col className="col-auto"> {
-                                        !editAnchorApy ?
-                                            <>
-                                            {(currentAnchorAPY
-                                                ?
-                                                    (<span className={"mx-2"}>{formatNumber(currentAnchorAPY * 100)}%</span>)
-                                                :
-                                                    <Spinner/>)}
-                                            <MdEdit className={"text-muted"} style={{marginTop: "-0.2rem"}}
-                                                    onClick={() => setEditAnchorAPY(true)}/>
-                                            </>
-                                        :
-                                        <Row>
-                                            <Col className={"p-0"}>
+                                    <Col>Buenbit DAI APY</Col>
+                                    <Col className="col-auto">
+                                        <InputGroup size="sm" style={{maxWidth: "8em"}}>
                                             <FormControl
-                                                className={classColor}
-                                                aria-label="manual_anchor"
-                                                aria-describedby="manual_anchor"
-                                                style={{width: "5rem", height: "1.6rem", textAlign: "right", fontWeight: "bold"}}
-                                                value={customAnchorAPY}
-                                                onChange={(e) => setCustomAnchorAPY(e.target.value.replaceAll(',', '.') || 0)}
+                                                aria-label="manual_apy"
+                                                aria-describedby="manual_apy"
+                                                value={customBuenbitAPY}
+                                                onChange={(e) => setCustomBuenbitAPY(e.target.value.replaceAll(',', '.') || 0)}
                                             />
-                                            </Col>
-                                            <Col className={"col-auto"}>
-                                            <ImCross style={{color: "red", float: "right", marginTop: "0.3rem"}} onClick={() => setEditAnchorAPY(false)}/>
-                                            </Col>
-                                        </Row>
-                                    }
+                                            <InputGroup.Text id="manual_apy">
+                                                %
+                                            </InputGroup.Text>
+                                        </InputGroup>
+                                    </Col>
+                                </Row>
+                            </ListGroup.Item>
+                            <ListGroup.Item>
+                                <Row>
+                                    <Col>TNA préstamo</Col>
+                                    <Col className="col-auto">
+                                        <InputGroup size="sm" style={{maxWidth: "8em"}}>
+                                            <FormControl
+                                                aria-label="manual_apy"
+                                                aria-describedby="manual_apy"
+                                                value={tna}
+                                                onChange={(e) => setTNA(e.target.value.replaceAll(',', '.') || 0)}
+                                            />
+                                            <InputGroup.Text id="manual_apy">
+                                                %
+                                            </InputGroup.Text>
+                                        </InputGroup>
                                     </Col>
                                 </Row>
                             </ListGroup.Item>
@@ -183,20 +171,17 @@ function App() {
                         </ListGroup>
                     </Card>
                     <Card className="p-3">
-                        <select
-                            className="form-select mb-3"
-                            aria-label="Default select"
-                            onChange={(e) => setSelectedDays(Number(e.target.value))}
-                        >
-                            {interests.map((interest) => (
-                                <option
-                                    value={interest.days}
-                                    selected={interest.days === selectedDays}
-                                >
-                                    {interest.days} días - Tasa de descuento {interest.discount * 100}%
-                                </option>
-                            ))}
-                        </select>
+                        <InputGroup className={"mb-3"}>
+                            <InputGroup.Text id="requested_days">
+                                Dias de préstamo
+                            </InputGroup.Text>
+                            <FormControl
+                                aria-label="requested_days"
+                                aria-describedby="requested_days"
+                                value={selectedDays}
+                                onChange={(e) => setSelectedDays(e.target.value)}
+                            />
+                        </InputGroup>
                         <InputGroup>
                             <InputGroup.Text id="requested_amount">
                                 Monto solicitado $
@@ -215,8 +200,20 @@ function App() {
                                 <Row>
                                     <Col>Total a recibir</Col>
                                     <Col className="col-auto">
-                                        ${formatNumber(amountToReceive)}
+                                        ${formatNumber(requestedAmount)}
                                     </Col>
+                                </Row>
+                            </ListGroup.Item>
+                            <ListGroup.Item>
+                                <Row>
+                                    <Col>Tasa Efectiva</Col>
+                                    <Col className="col-auto">{formatNumber(interest/requestedAmount*100)}%</Col>
+                                </Row>
+                            </ListGroup.Item>
+                            <ListGroup.Item>
+                                <Row>
+                                    <Col>Tasa Efectiva Anual</Col>
+                                    <Col className="col-auto">{formatNumber(tea * 100 - 100)}%</Col>
                                 </Row>
                             </ListGroup.Item>
                             <ListGroup.Item>
@@ -235,20 +232,20 @@ function App() {
                             </ListGroup.Item>
                             <ListGroup.Item>
                                 <Row>
-                                    <Col>Ganancia en Anchor</Col>
+                                    <Col>Ganancia en Buenbit</Col>
                                     <Col className="col-auto">
-                                        U$D {formatNumber(expectedAnchorEarnings)}
+                                        U$D {formatNumber(expectedBuenbitEarnings)}
                                     </Col>
                                 </Row>
                             </ListGroup.Item>
                             <ListGroup.Item>
                                 <Row>
                                     <Col>
-                                        Ganancia en Anchor{' '}
+                                        Ganancia en Buenbit{' '}
                                         <span className={"text-muted"}>sin colateral extra</span>
                                     </Col>
                                     <Col className="col-auto">
-                                        U$D {formatNumber(expectedAnchorEarningsWithoutColateral)}
+                                        U$D {formatNumber(expectedBuenbitEarningsWithoutColateral)}
                                     </Col>
                                 </Row>
                             </ListGroup.Item>
@@ -382,9 +379,6 @@ function App() {
                         </div>
                     </Card>
                     <Card className={"p-2"}>
-                        <div className={"text-muted"}>
-                            Intereses de num actualizados al 22/04/2022
-                        </div>
                         <div className={"text-muted"}>
                             Puede haber errores en los cálculos, do your own research
                         </div>
